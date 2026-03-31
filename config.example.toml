@@ -1,3 +1,14 @@
+[database]
+host = "127.0.0.1"
+port = 5432
+user = "postgres"
+password = "postgres"
+name = "avito_masspost"
+sslmode = "disable"
+
+[migration]
+path = "migrations"
+
 [avito]
 base_url = "https//api.avito.ru"
 client_id = "your_client_id"
