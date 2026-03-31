@@ -385,3 +385,72 @@ func normalizeCurrency(v string) string {
 
 	return v
 }
+
+// State contains full listing state for repository restore.
+type State struct {
+	ID        ID
+	ProductID ProductID
+	ZoneID    ZoneID
+	Text      Text
+	Price     Price
+	Images    []Image
+	Status    Status
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// Restore rebuilds a listing from stored state.
+func Restore(state State) (*Listing, error) {
+	if strings.TrimSpace(string(state.ID)) == "" {
+		return nil, ErrEmptyID
+	}
+
+	if strings.TrimSpace(string(state.ProductID)) == "" {
+		return nil, errors.New("empty product id")
+	}
+
+	if strings.TrimSpace(string(state.ZoneID)) == "" {
+		return nil, errors.New("empty zone id")
+	}
+
+	if err := validateText(state.Text); err != nil {
+		return nil, err
+	}
+
+	if err := validatePrice(state.Price); err != nil {
+		return nil, err
+	}
+
+	switch state.Status {
+	case StatusDraft, StatusReady, StatusExported, StatusArchived:
+	default:
+		return nil, fmt.Errorf("%w: %q", ErrInvalidStatus, state.Status)
+	}
+
+	out := make([]Image, 0, len(state.Images))
+	for _, image := range state.Images {
+		if strings.TrimSpace(image.URL) == "" {
+			continue
+		}
+
+		out = append(out, Image{URL: strings.TrimSpace(image.URL)})
+	}
+
+	return &Listing{
+		id:        state.ID,
+		productID: state.ProductID,
+		zoneID:    state.ZoneID,
+		text: Text{
+			Title:       strings.TrimSpace(state.Text.Title),
+			Description: strings.TrimSpace(state.Text.Description),
+		},
+		price: Price{
+			Amount:   state.Price.Amount,
+			Currency: normalizeCurrency(state.Price.Currency),
+		},
+		images:    out,
+		status:    state.Status,
+		createdAt: state.CreatedAt,
+		updatedAt: state.UpdatedAt,
+	}, nil
+}
