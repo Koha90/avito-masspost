@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/koha90/avito-masspost/internal/listing"
+	"github.com/Koha90/avito-masspost/internal/listing"
 )
 
 type productRow struct {
@@ -69,29 +69,27 @@ type listingRow struct {
 
 func (r listingRow) Listing() (*listing.Listing, error) {
 	images := make([]listing.Image, 0, len(r.Images))
-	for _, u := range r.Images {
-		images = append(images, listing.Image{URL: u})
+	for _, url := range r.Images {
+		images = append(images, listing.Image{URL: url})
 	}
 
-	item, err := listing.Restore(
-		listing.State{
-			ID:        listing.ID(r.ID),
-			ProductID: listing.ProductID(r.ProductID),
-			ZoneID:    listing.ZoneID(r.ZoneID),
-			Text: listing.Text{
-				Title:       r.Title,
-				Description: r.Description,
-			},
-			Price: listing.Price{
-				Amount:   r.PriceAmount,
-				Currency: r.PriceCurrency,
-			},
-			Images:    images,
-			Status:    listing.Status(r.Status),
-			CreatedAt: r.CreatedAt,
-			UpdatedAt: r.UpdatedAt,
+	item, err := listing.Restore(listing.State{
+		ID:        listing.ID(r.ID),
+		ProductID: listing.ProductID(r.ProductID),
+		ZoneID:    listing.ZoneID(r.ZoneID),
+		Text: listing.Text{
+			Title:       r.Title,
+			Description: r.Description,
 		},
-	)
+		Price: listing.Price{
+			Amount:   r.PriceAmount,
+			Currency: r.PriceCurrency,
+		},
+		Images:    images,
+		Status:    listing.Status(r.Status),
+		CreatedAt: r.CreatedAt,
+		UpdatedAt: r.UpdatedAt,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("restore listing: %w", err)
 	}

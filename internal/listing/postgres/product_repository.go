@@ -45,17 +45,19 @@ func (r *ProductRepository) Save(ctx context.Context, product listing.Product) e
 			updated_at = NOW()
 	`
 
+	mix := product.Mix()
+
 	_, err := r.db.ExecContext(
 		ctx,
 		q,
-		string(product.ID),
-		product.Name,
-		product.Mix.Grade,
-		product.Mix.Class,
-		product.Mix.Mobility,
-		product.Mix.FrostResistance,
-		product.Mix.WaterResistance,
-		product.MinVolumeM3,
+		string(product.ID()),
+		product.Name(),
+		mix.Grade,
+		mix.Class,
+		mix.Mobility,
+		mix.FrostResistance,
+		mix.WaterResistance,
+		product.MinVolumeM3(),
 	)
 	if err != nil {
 		return fmt.Errorf("save product: %w", err)
@@ -98,7 +100,12 @@ func (r *ProductRepository) ByID(ctx context.Context, id listing.ProductID) (lis
 		return listing.Product{}, fmt.Errorf("query product by id %q: %w", id, err)
 	}
 
-	return row.Product()
+	product, err := row.Product()
+	if err != nil {
+		return listing.Product{}, fmt.Errorf("build product: %w", err)
+	}
+
+	return product, nil
 }
 
 // List returns all products.
@@ -141,7 +148,7 @@ func (r *ProductRepository) List(ctx context.Context) ([]listing.Product, error)
 
 		product, err := row.Product()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("build product: %w", err)
 		}
 
 		out = append(out, product)

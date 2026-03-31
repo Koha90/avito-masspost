@@ -3,14 +3,12 @@ package postgres
 
 import "database/sql"
 
-// Repository provides access to PostgreSQL-backend listing repositories.
+// Repository provides access to PostgreSQL-backed listing repositories.
 type Repository struct {
 	db *sql.DB
 }
 
 // NewRepository returns a new PostgreSQL repository set.
 func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
-		db: db,
-	}
+	return &Repository{db: db}
 }
