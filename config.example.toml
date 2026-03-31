@@ -1,0 +1,8 @@
+[avito]
+base_url = "https//api.avito.ru"
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+user_id = "your_user_id"
+
+[feed]
+output_path = "feeds/avito.xml"
